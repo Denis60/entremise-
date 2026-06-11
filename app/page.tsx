@@ -29,11 +29,10 @@ export default function Home() {
           <br />
           ou une vitrine d&apos;entreprises.
           <br />
-          C&apos;est une place de marché intermédiée par une IA,
-          <br />
-          qui aide à mûrir les besoins
-          <br />
-          et révèle les solutions du territoire.
+          <span className="mt-6 block">
+            C&apos;est une place de marché intermédiée par une IA, qui aide à
+            mûrir les besoins et révèle les solutions du territoire.
+          </span>
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-stone-600">
           Décrivez votre besoin, même flou. L&apos;IA vous aide à le faire
