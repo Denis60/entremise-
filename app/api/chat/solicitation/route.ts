@@ -47,10 +47,13 @@ export async function POST(req: Request) {
   });
 
   const turns = (history ?? [])
-    .filter((m) => m.role === "user" || m.role === "assistant")
+    .filter((m) => m.role === "user" || m.role === "assistant" || m.role === "market")
     .map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
+      role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
+      content:
+        m.role === "market"
+          ? `[Précisions du demandeur transmises par la plateforme] ${m.content}`
+          : m.content,
     }));
   turns.unshift({
     role: "user",

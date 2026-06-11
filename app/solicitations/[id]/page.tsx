@@ -172,6 +172,13 @@ export default function SolicitationPage() {
                     <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-stone-900 px-4 py-2.5 text-sm text-white">
                       {m.content}
                     </div>
+                  ) : m.role === "market" ? (
+                    <div className="max-w-[85%] rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm">
+                      <p className="text-xs font-semibold text-amber-700">
+                        Le demandeur a apporté des précisions
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap">{m.content}</p>
+                    </div>
                   ) : (
                     <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
                       {m.content}
