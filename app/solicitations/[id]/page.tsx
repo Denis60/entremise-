@@ -45,6 +45,11 @@ export default function SolicitationPage() {
     ]);
     const row = (b as Brief[] | null)?.[0];
     if (!row) return router.push("/dashboard");
+    supabase
+      .from("solicitations")
+      .update({ provider_seen_at: new Date().toISOString() })
+      .eq("id", id)
+      .then();
     setBrief(row);
     setMessages((msgs as Message[]) ?? []);
     setCredits((creds ?? []).length);
@@ -141,6 +146,8 @@ export default function SolicitationPage() {
               {SOL_STATUS_LABELS[brief.sol_status]} · Vous êtes «{" "}
               {brief.anon_label} » aux yeux du demandeur. Pas d&apos;offre à
               rédiger : vos questions et suggestions font la différence.
+              Quittez quand vous voulez : vous serez alerté par e-mail et
+              reprendrez où vous en étiez.
             </p>
           </div>
           <div className="flex-1 space-y-4 overflow-y-auto p-5">

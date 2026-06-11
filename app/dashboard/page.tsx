@@ -53,11 +53,25 @@ export default async function Dashboard() {
     ? (await supabase.from("last_solicitation_message").select("*").in("solicitation_id", solIds)).data
     : [];
   const activeNeed = (s: string) => !["resolved", "closed", "abandoned"].includes(s);
+  const needSeen = new Map((needs ?? []).map((n: any) => [n.id, n.owner_seen_at]));
+  const solSeen = new Map((sols ?? []).map((s: any) => [s.id, s.provider_seen_at]));
   const needAwaiting = new Set(
-    (lastNeedMsgs ?? []).filter((m: any) => m.role !== "user").map((m: any) => m.need_id)
+    (lastNeedMsgs ?? [])
+      .filter(
+        (m: any) =>
+          m.role !== "user" &&
+          new Date(m.created_at) > new Date(needSeen.get(m.need_id) ?? 0)
+      )
+      .map((m: any) => m.need_id)
   );
   const solAwaiting = new Set(
-    (lastSolMsgs ?? []).filter((m: any) => m.role !== "user").map((m: any) => m.solicitation_id)
+    (lastSolMsgs ?? [])
+      .filter(
+        (m: any) =>
+          m.role !== "user" &&
+          new Date(m.created_at) > new Date(solSeen.get(m.solicitation_id) ?? 0)
+      )
+      .map((m: any) => m.solicitation_id)
   );
 
   return (

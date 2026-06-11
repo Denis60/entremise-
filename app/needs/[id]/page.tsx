@@ -40,6 +40,8 @@ export default function NeedPage() {
       supabase.from("solicitations").select("*").eq("need_id", id),
     ]);
     if (!n) return router.push("/dashboard");
+    // trace de la dernière consultation (sert à l'indicateur « nouveauté » du dashboard)
+    supabase.from("needs").update({ owner_seen_at: new Date().toISOString() }).eq("id", id).then();
     setNeed(n as Need);
     setDisclosedDraft((n as Need).disclosed_version ?? "");
     setMessages((msgs as Message[]) ?? []);
@@ -235,8 +237,10 @@ export default function NeedPage() {
           <div className="border-b border-stone-100 px-5 py-3">
             <h1 className="font-semibold">{need.title}</h1>
             <p className="text-xs text-stone-500">
-              {NEED_STATUS_LABELS[need.status]} · Cette conversation est
-              confidentielle : rien n&apos;en sort sans votre validation.
+              {NEED_STATUS_LABELS[need.status]} · Conversation confidentielle :
+              rien n&apos;en sort sans votre validation. Quittez quand vous
+              voulez : tout reste ouvert, vous serez alerté par e-mail et
+              reprendrez où vous en étiez.
             </p>
           </div>
           <div className="flex-1 space-y-4 overflow-y-auto p-5">
