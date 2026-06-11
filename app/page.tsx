@@ -25,9 +25,13 @@ export default function Home() {
 
       <section className="mt-24">
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-          Ce n&apos;est pas un annuaire.
+          Ceci n&apos;est pas un annuaire
           <br />
-          C&apos;est une IA qui fait mûrir les besoins
+          ou une vitrine d&apos;entreprises.
+          <br />
+          C&apos;est une place de marché intermédiée par une IA,
+          <br />
+          qui aide à mûrir les besoins
           <br />
           et révèle les solutions du territoire.
         </h1>
