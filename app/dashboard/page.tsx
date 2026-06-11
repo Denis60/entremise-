@@ -37,6 +37,12 @@ export default async function Dashboard() {
 
   const q = quota as { solicited_count: number; free_remaining: number } | null;
 
+  const { data: adminRow } = await supabase
+    .from("app_admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   // Projets en attente d'une réponse de l'utilisateur (dernier message ≠ lui)
   const needIds = (needs ?? []).map((n) => n.id);
   const solIds = (sols ?? []).map((s) => s.id);
@@ -62,6 +68,11 @@ export default async function Dashboard() {
           <div>
             <h1 className="text-2xl font-semibold">{profile.company_name}</h1>
             <p className="text-sm text-stone-500">
+              {adminRow && (
+                <Link href="/admin" className="mr-2 font-semibold text-amber-700 underline">
+                  Administration
+                </Link>
+              )}
               {profile.is_solicitable
                 ? "Sollicitable comme prestataire"
                 : "Non sollicitable"}
