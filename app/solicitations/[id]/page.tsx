@@ -13,6 +13,8 @@ type Brief = {
   anon_label: string;
   sol_status: string;
   relevance_reason: string | null;
+  demander_headcount: string | null;
+  demander_revenue: string | null;
 };
 
 export default function SolicitationPage() {
@@ -145,6 +147,13 @@ export default function SolicitationPage() {
             <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm">
               <p className="text-xs font-semibold uppercase text-stone-400">
                 Besoin anonymisé (validé par le demandeur)
+              </p>
+              <p className="mt-1 text-xs font-medium text-stone-600">
+                Entreprise demandeuse :{" "}
+                {brief.demander_headcount
+                  ? `${brief.demander_headcount} salariés`
+                  : "effectif non renseigné"}
+                {brief.demander_revenue && ` · CA ${brief.demander_revenue}`}
               </p>
               <p className="mt-2 whitespace-pre-wrap">
                 {brief.disclosed_version}

@@ -4,6 +4,7 @@ export type Profile = {
   company_name: string;
   activity_description: string;
   revenue_band: string | null;
+  headcount_band: string | null;
   department: string | null;
   city: string | null;
   certifications: string[];
@@ -76,6 +77,8 @@ export type Notification = {
 };
 
 export const REVENUE_BANDS = ["<100k", "100k-500k", "500k-2M", "2M-10M", ">10M"];
+
+export const HEADCOUNT_BANDS = ["1-9", "10-49", "50-249", "250+"];
 
 export const NEED_STATUS_LABELS: Record<string, string> = {
   maturing: "Maturation",

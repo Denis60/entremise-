@@ -408,6 +408,14 @@ export default function NeedPage() {
                 Validez d&apos;abord la version divulgable.
               </p>
             )}
+            {need.solicited_at && sols.length === 0 && (
+              <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                <strong>Sollicitation active.</strong> Nous recherchons
+                l&apos;avis de prestataires pertinents — chaque nouvelle
+                entreprise inscrite est automatiquement évaluée sur votre
+                besoin. Vous serez prévenu en temps réel de l&apos;avancement.
+              </p>
+            )}
             {sols.length > 0 && (
               <ul className="mt-3 space-y-2">
                 {sols.map((s) => (

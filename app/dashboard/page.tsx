@@ -52,7 +52,6 @@ export default async function Dashboard() {
               {q ? `${q.free_remaining} besoin(s) gratuit(s) restant(s)` : ""}
             </p>
           </div>
-          <NewNeedButton />
         </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
@@ -86,6 +85,9 @@ export default async function Dashboard() {
                   )}
                 </Link>
               ))}
+              <div className="pt-1">
+                <NewNeedButton />
+              </div>
             </div>
           </section>
 
@@ -165,8 +167,12 @@ export default async function Dashboard() {
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
             <h3 className="text-sm font-semibold text-stone-700">
-              Dernières transactions (simulées)
+              Paiements (simulés — pilote)
             </h3>
+            <p className="mt-1 text-xs text-stone-400">
+              Mises en relation (150 €) et besoins au-delà des 4 gratuits
+              (50 €). Aucun paiement réel dans cette phase pilote.
+            </p>
             <ul className="mt-2 space-y-1 text-sm">
               {(txs ?? []).length === 0 && (
                 <li className="text-stone-500">Aucune.</li>

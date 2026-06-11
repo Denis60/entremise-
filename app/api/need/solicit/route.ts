@@ -39,11 +39,6 @@ export async function POST(req: Request) {
   );
   if (candErr)
     return NextResponse.json({ error: candErr.message }, { status: 400 });
-  if (!candidates || candidates.length === 0)
-    return NextResponse.json(
-      { error: "Aucun prestataire sollicitable ne correspond à vos filtres. Élargissez-les." },
-      { status: 400 }
-    );
 
   // déjà sollicités → exclus
   const { data: existing } = await supabase
@@ -51,12 +46,19 @@ export async function POST(req: Request) {
     .select("provider_id")
     .eq("need_id", needId);
   const done = new Set((existing ?? []).map((s) => s.provider_id));
-  const pool = candidates.filter((c: any) => !done.has(c.provider_id));
-  if (pool.length === 0)
-    return NextResponse.json(
-      { error: "Tous les prestataires éligibles ont déjà été sollicités." },
-      { status: 400 }
-    );
+  const pool = (candidates ?? []).filter((c: any) => !done.has(c.provider_id));
+
+  // Aucun candidat immédiat : la sollicitation reste néanmoins ACTIVE.
+  // Chaque nouveau prestataire inscrit sera automatiquement testé sur ce besoin.
+  if (pool.length === 0) {
+    const { error } = await supabase.rpc("create_solicitations", {
+      p_need_id: needId,
+      p_providers: [],
+    });
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ solicited: 0, pending: true });
+  }
 
   let out;
   try {
@@ -85,12 +87,8 @@ export async function POST(req: Request) {
   const matches = (out.matches ?? []).filter(
     (m: any) => m.provider_id && pool.some((c: any) => c.provider_id === m.provider_id)
   );
-  if (matches.length === 0)
-    return NextResponse.json(
-      { error: "L'IA n'a identifié aucun prestataire pertinent pour ce besoin dans le vivier actuel." },
-      { status: 400 }
-    );
 
+  // Même sans match : la sollicitation est activée et reste ouverte aux nouveaux inscrits.
   const { data: count, error } = await supabase.rpc("create_solicitations", {
     p_need_id: needId,
     p_providers: matches,
@@ -98,5 +96,9 @@ export async function POST(req: Request) {
   if (error)
     return NextResponse.json({ error: error.message }, { status: 400 });
 
-  return NextResponse.json({ solicited: count, matches: matches.length });
+  return NextResponse.json({
+    solicited: count,
+    matches: matches.length,
+    pending: matches.length === 0,
+  });
 }

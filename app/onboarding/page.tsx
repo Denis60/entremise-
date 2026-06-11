@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { REVENUE_BANDS } from "@/lib/types";
+import { REVENUE_BANDS, HEADCOUNT_BANDS } from "@/lib/types";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function OnboardingPage() {
     company_name: "",
     activity_description: "",
     revenue_band: "",
+    headcount_band: "",
     department: "16",
     city: "",
     certifications: "",
@@ -41,6 +42,7 @@ export default function OnboardingPage() {
           company_name: data.company_name,
           activity_description: data.activity_description,
           revenue_band: data.revenue_band ?? "",
+          headcount_band: data.headcount_band ?? "",
           department: data.department ?? "16",
           city: data.city ?? "",
           certifications: (data.certifications ?? []).join(", "),
@@ -66,6 +68,7 @@ export default function OnboardingPage() {
       company_name: form.company_name,
       activity_description: form.activity_description,
       revenue_band: form.revenue_band || null,
+      headcount_band: form.headcount_band || null,
       department: form.department || null,
       city: form.city || null,
       certifications: form.certifications
@@ -80,6 +83,10 @@ export default function OnboardingPage() {
     if (error) {
       setError(error.message);
       return;
+    }
+    // Prestataire sollicitable : l'IA le teste immédiatement sur les besoins en sollicitation active
+    if (payload.is_solicitable) {
+      fetch("/api/match/rescan", { method: "POST" }).catch(() => {});
     }
     router.push("/dashboard");
     router.refresh();
@@ -126,7 +133,7 @@ export default function OnboardingPage() {
           }
           className={input}
         />
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <select
             value={form.revenue_band}
             onChange={(e) =>
@@ -141,6 +148,23 @@ export default function OnboardingPage() {
               </option>
             ))}
           </select>
+          <select
+            required
+            value={form.headcount_band}
+            onChange={(e) =>
+              setForm({ ...form, headcount_band: e.target.value })
+            }
+            className={input}
+          >
+            <option value="">Effectif (salariés)</option>
+            {HEADCOUNT_BANDS.map((b) => (
+              <option key={b} value={b}>
+                {b} salariés
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <input
             placeholder="Département (ex. 16)"
             value={form.department}
