@@ -37,6 +37,23 @@ export default async function Dashboard() {
 
   const q = quota as { solicited_count: number; free_remaining: number } | null;
 
+  // Projets en attente d'une réponse de l'utilisateur (dernier message ≠ lui)
+  const needIds = (needs ?? []).map((n) => n.id);
+  const solIds = (sols ?? []).map((s) => s.id);
+  const lastNeedMsgs = needIds.length
+    ? (await supabase.from("last_need_message").select("*").in("need_id", needIds)).data
+    : [];
+  const lastSolMsgs = solIds.length
+    ? (await supabase.from("last_solicitation_message").select("*").in("solicitation_id", solIds)).data
+    : [];
+  const activeNeed = (s: string) => !["resolved", "closed", "abandoned"].includes(s);
+  const needAwaiting = new Set(
+    (lastNeedMsgs ?? []).filter((m: any) => m.role !== "user").map((m: any) => m.need_id)
+  );
+  const solAwaiting = new Set(
+    (lastSolMsgs ?? []).filter((m: any) => m.role !== "user").map((m: any) => m.solicitation_id)
+  );
+
   return (
     <>
       <Nav />
@@ -72,10 +89,25 @@ export default async function Dashboard() {
                 <Link
                   key={n.id}
                   href={`/needs/${n.id}`}
-                  className="block rounded-xl border border-stone-200 bg-white p-4 hover:border-amber-400"
+                  className={`block rounded-xl border bg-white p-4 hover:border-amber-400 ${
+                    needAwaiting.has(n.id) && activeNeed(n.status)
+                      ? "border-amber-400"
+                      : "border-stone-200"
+                  }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">{n.title}</p>
+                    <p
+                      className={
+                        needAwaiting.has(n.id) && activeNeed(n.status)
+                          ? "font-bold"
+                          : "font-medium"
+                      }
+                    >
+                      {needAwaiting.has(n.id) && activeNeed(n.status) && (
+                        <span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber-500" />
+                      )}
+                      {n.title}
+                    </p>
                     <span className="shrink-0 rounded-full bg-stone-100 px-3 py-1 text-xs">
                       {NEED_STATUS_LABELS[n.status] ?? n.status}
                     </span>
@@ -108,10 +140,24 @@ export default async function Dashboard() {
                 <Link
                   key={s.id}
                   href={`/solicitations/${s.id}`}
-                  className="block rounded-xl border border-stone-200 bg-white p-4 hover:border-amber-400"
+                  className={`block rounded-xl border bg-white p-4 hover:border-amber-400 ${
+                    solAwaiting.has(s.id) && ["pending", "engaged", "contact_offered"].includes(s.status)
+                      ? "border-amber-400"
+                      : "border-stone-200"
+                  }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">
+                    <p
+                      className={
+                        solAwaiting.has(s.id) && ["pending", "engaged", "contact_offered"].includes(s.status)
+                          ? "font-bold"
+                          : "font-medium"
+                      }
+                    >
+                      {solAwaiting.has(s.id) &&
+                        ["pending", "engaged", "contact_offered"].includes(s.status) && (
+                          <span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber-500" />
+                        )}
                       Besoin anonymisé
                       {s.is_best_contributor && " ★"}
                     </p>

@@ -30,6 +30,22 @@ export async function POST(req: Request) {
   if (!need)
     return NextResponse.json({ error: "Besoin introuvable" }, { status: 404 });
 
+  // Le demandeur reprend la conversation : contributions en attente intégrées en brief, sans alerte
+  const { data: pending } = await supabase.rpc("consume_pending_contributions", {
+    p_need_id: needId,
+  });
+  if (pending && pending.length > 0) {
+    await supabase.from("messages").insert({
+      need_id: needId,
+      scope: "need",
+      role: "market",
+      content: pending
+        .map((c: any) => `${c.anon_label} (${c.kind}) : ${c.content}`)
+        .join("\n\n"),
+      meta: { kind: "batch" },
+    });
+  }
+
   const { data: history } = await supabase
     .from("messages")
     .select("role, content")

@@ -263,10 +263,15 @@ export default function NeedPage() {
                 {m.role === "market" && (
                   <div className="max-w-[85%] rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm">
                     <p className="text-xs font-semibold text-amber-700">
-                      {m.meta.anon_label}{" "}
-                      {m.meta.kind === "question"
-                        ? "vous pose une question"
-                        : "suggère"}
+                      {m.meta.kind === "synthesis"
+                        ? "Synthèse des contributions du marché"
+                        : m.meta.kind === "batch"
+                          ? "Contributions reçues pendant votre absence"
+                          : `${m.meta.anon_label} ${
+                              m.meta.kind === "question"
+                                ? "vous pose une question"
+                                : "suggère"
+                            }`}
                     </p>
                     <p className="mt-1 whitespace-pre-wrap">{m.content}</p>
                     {m.meta.contribution_id && (
