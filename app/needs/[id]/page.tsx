@@ -188,11 +188,28 @@ export default function NeedPage() {
   }
 
   async function closeNeed(outcome: string) {
-    if (!confirm("Confirmer ? Cette action clôt le projet.")) return;
+    const msg =
+      outcome === "open_consultation"
+        ? "Lancer une consultation ouverte ? Votre anonymat sera levé et le besoin publié."
+        : "Clore ce besoin ? Les prestataires sollicités seront prévenus et le meilleur contributeur recevra un crédit de mise en relation gratuit.";
+    if (!confirm(msg)) return;
     setBusy("close");
     await supabase.rpc("close_need", { p_need_id: id, p_outcome: outcome });
     setBusy(null);
     await load();
+  }
+
+  async function deleteNeed() {
+    if (
+      !confirm(
+        "Supprimer définitivement ce besoin ?\nToute la conversation, les sollicitations et les contributions seront effacées. Cette action est irréversible."
+      )
+    )
+      return;
+    setBusy("delete");
+    const { error } = await supabase.rpc("delete_need", { p_need_id: id });
+    setBusy(null);
+    if (!error) router.push("/dashboard");
   }
 
   if (!need)
@@ -493,16 +510,28 @@ export default function NeedPage() {
                   disabled={busy === "close"}
                   className="w-full rounded-lg border border-stone-300 py-2 text-sm hover:bg-stone-50"
                 >
-                  Clore proprement ce besoin
+                  Clore ce besoin
                 </button>
                 <button
-                  onClick={() => closeNeed("abandoned")}
-                  disabled={busy === "close"}
+                  onClick={deleteNeed}
+                  disabled={busy === "delete"}
                   className="w-full rounded-lg border border-red-200 py-2 text-sm text-red-700 hover:bg-red-50"
                 >
-                  Arrêter tout (kill-switch)
+                  {busy === "delete" ? "Suppression…" : "Supprimer définitivement"}
                 </button>
               </div>
+            </div>
+          )}
+
+          {closed && (
+            <div className="rounded-2xl border border-stone-200 bg-white p-5">
+              <button
+                onClick={deleteNeed}
+                disabled={busy === "delete"}
+                className="w-full rounded-lg border border-red-200 py-2 text-sm text-red-700 hover:bg-red-50"
+              >
+                {busy === "delete" ? "Suppression…" : "Supprimer définitivement ce besoin"}
+              </button>
             </div>
           )}
         </aside>
