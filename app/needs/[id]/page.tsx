@@ -311,10 +311,21 @@ export default function NeedPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  // Mobile (écran tactile) : Entrée = nouvelle ligne, envoi par le bouton.
+                  // Desktop : Entrée envoie, Maj+Entrée = nouvelle ligne.
+                  if (
+                    e.key === "Enter" &&
+                    !e.shiftKey &&
+                    !window.matchMedia("(pointer: coarse)").matches
+                  ) {
                     e.preventDefault();
                     send();
                   }
+                }}
+                onInput={(e) => {
+                  const t = e.currentTarget;
+                  t.style.height = "auto";
+                  t.style.height = Math.min(t.scrollHeight, 180) + "px";
                 }}
                 placeholder="Votre message…"
                 className="flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"

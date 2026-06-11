@@ -26,11 +26,56 @@ export async function askClaudeJSON(opts: {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start >= 0 && end > start) {
+    const raw = text.slice(start, end + 1);
     try {
-      return JSON.parse(text.slice(start, end + 1));
+      return JSON.parse(raw);
     } catch {
-      /* fallthrough */
+      // répare les sauts de ligne non échappés à l'intérieur des chaînes
+      try {
+        return JSON.parse(escapeNewlinesInStrings(raw));
+      } catch {
+        /* fallthrough */
+      }
     }
+    // dernier recours : extraire le champ reply/synthesis/update à la regex
+    for (const key of ["reply", "synthesis", "update", "disclosed_version"]) {
+      const m = raw.match(
+        new RegExp('"' + key + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.|[\\r\\n])*)"')
+      );
+      if (m)
+        return {
+          [key]: m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"'),
+        };
+    }
+    // ne jamais renvoyer du JSON brut à afficher
+    return {};
   }
   return { reply: text };
+}
+
+/** Échappe les \n littéraux situés à l'intérieur des chaînes JSON. */
+function escapeNewlinesInStrings(s: string): string {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (const ch of s) {
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === '"') {
+        inString = false;
+      } else if (ch === "\n") {
+        out += "\\n";
+        continue;
+      } else if (ch === "\r") {
+        continue;
+      }
+    } else if (ch === '"') {
+      inString = true;
+    }
+    out += ch;
+  }
+  return out;
 }
