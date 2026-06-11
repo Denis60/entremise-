@@ -130,6 +130,21 @@ export default function NeedPage() {
       kind: "disclosure",
       payload: { disclosed_version: disclosedDraft },
     });
+    // Besoin qui évolue pendant une sollicitation active : le marché est automatiquement re-testé
+    if (need!.status === "soliciting") {
+      fetch("/api/need/solicit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ needId: id }),
+      }).then(() => load());
+    }
+    setBusy(null);
+    await load();
+  }
+
+  async function deactivateSolicitation() {
+    setBusy("solicit");
+    await supabase.from("needs").update({ status: "maturing" }).eq("id", id);
     setBusy(null);
     await load();
   }
@@ -389,26 +404,36 @@ export default function NeedPage() {
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="text-sm font-semibold">3. Solliciter le marché</h2>
             <p className="mt-1 text-xs text-stone-500">
-              L&apos;IA sonde anonymement les prestataires pertinents. Leurs
-              questions affineront votre besoin.
+              L&apos;IA sonde anonymement les prestataires pertinents. Tant
+              que la sollicitation est active, tout nouveau prestataire
+              pertinent (nouvelle inscription ou évolution de votre besoin)
+              est automatiquement testé.
             </p>
-            <button
-              onClick={solicit}
-              disabled={!canSolicit || busy === "solicit"}
-              className="mt-3 w-full rounded-lg bg-amber-600 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-40"
-            >
-              {busy === "solicit"
-                ? "Sollicitation en cours…"
-                : need.solicited_at
-                  ? "Solliciter de nouveaux prestataires"
+            {need.status === "soliciting" ? (
+              <button
+                onClick={deactivateSolicitation}
+                disabled={busy === "solicit"}
+                className="mt-3 w-full rounded-lg border border-stone-300 py-2 text-sm font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-40"
+              >
+                Désactiver la sollicitation
+              </button>
+            ) : (
+              <button
+                onClick={solicit}
+                disabled={!canSolicit || busy === "solicit"}
+                className="mt-3 w-full rounded-lg bg-amber-600 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-40"
+              >
+                {busy === "solicit"
+                  ? "Sollicitation en cours…"
                   : "Activer la sollicitation"}
-            </button>
+              </button>
+            )}
             {!need.disclosure_approved_at && (
               <p className="mt-2 text-xs text-stone-400">
                 Validez d&apos;abord la version divulgable.
               </p>
             )}
-            {need.solicited_at && sols.length === 0 && (
+            {need.status === "soliciting" && sols.length === 0 && (
               <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
                 <strong>Sollicitation active.</strong> Nous recherchons
                 l&apos;avis de prestataires pertinents — chaque nouvelle
