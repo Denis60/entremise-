@@ -47,7 +47,8 @@ export default function Home() {
           mûrir.
           <br />
           Quand vous le décidez — et seulement alors — elle sonde anonymement
-          les prestataires pertinents du territoire.
+          les prestataires pertinents du territoire. Leurs contributions ou
+          leurs questions poursuivent la maturation de votre projet.
           <br />
           La mise en contact n&apos;a lieu qu&apos;avec le consentement des
           deux parties.
