@@ -24,10 +24,10 @@ export async function POST(req: Request) {
     p_secret: secret,
   });
   if (error) return NextResponse.json({ error: error.message }, { status: 403 });
-  if (!needs || needs.length === 0) return NextResponse.json({ consolidated: 0 });
+  // pas d'early return : la phase 2 (synthèses demandeur → prestataires) doit tourner même sans consolidation
 
   let done = 0;
-  for (const n of needs) {
+  for (const n of needs ?? []) {
     let out;
     try {
       out = await askClaudeJSON({
