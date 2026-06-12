@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { askClaudeJSON } from "@/lib/ai";
+import { askClaudeJSON, usableText } from "@/lib/ai";
 
 export const maxDuration = 60;
 
@@ -72,18 +72,27 @@ export async function POST(req: Request) {
   let out;
   try {
     out = await askClaudeJSON({ system: SYSTEM, messages: turns });
+    // réponse vide ou placeholder : une seule nouvelle tentative
+    if (!usableText(out?.reply))
+      out = await askClaudeJSON({ system: SYSTEM, messages: turns, maxTokens: 4000 });
   } catch (e: any) {
     return NextResponse.json(
       { error: "Appel IA impossible. Vérifiez ANTHROPIC_API_KEY. " + (e?.message ?? "") },
       { status: 502 }
     );
   }
+  // jamais de placeholder persisté : on signale l'échec, le message utilisateur reste en base
+  if (!usableText(out?.reply))
+    return NextResponse.json(
+      { error: "L'IA n'a pas pu formuler de réponse. Réessayez dans un instant." },
+      { status: 502 }
+    );
 
   await supabase.from("messages").insert({
     need_id: needId,
     scope: "need",
     role: "assistant",
-    content: out.reply ?? "…",
+    content: out.reply,
   });
 
   const patch: Record<string, unknown> = {};
