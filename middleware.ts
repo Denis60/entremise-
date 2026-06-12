@@ -34,7 +34,10 @@ export async function middleware(request: NextRequest) {
     path === "/" ||
     path.startsWith("/login") ||
     path.startsWith("/signup") ||
-    path.startsWith("/auth");
+    path.startsWith("/auth") ||
+    // routes appelées par pg_cron (authentifiées par x-cron-secret, pas par cookie) :
+    // sans cette exclusion, le POST est redirigé vers /login → 405, le cron ne tourne jamais
+    path.startsWith("/api/cron");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
