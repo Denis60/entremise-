@@ -6,6 +6,14 @@ export const anthropic = new Anthropic({
 
 export const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 
+/** Texte réellement exploitable : ni vide, ni placeholder recopié du template ("...", "…"). */
+export function usableText(s: unknown): s is string {
+  if (typeof s !== "string") return false;
+  const t = s.trim();
+  if (t.length < 4) return false;
+  return !["...", "…", "ta réponse au demandeur", "ta réponse au prestataire"].includes(t);
+}
+
 /** Appelle Claude et tente de parser un objet JSON dans la réponse. */
 export async function askClaudeJSON(opts: {
   system: string;
@@ -14,14 +22,17 @@ export async function askClaudeJSON(opts: {
 }): Promise<any> {
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: opts.maxTokens ?? 2000,
+    max_tokens: opts.maxTokens ?? 3000,
     system: opts.system,
-    messages: opts.messages,
+    // préremplissage "{" : force une sortie JSON immédiate, sans préambule ni template recopié
+    messages: [...opts.messages, { role: "assistant", content: "{" }],
   });
-  const text = res.content
-    .filter((b) => b.type === "text")
-    .map((b: any) => b.text)
-    .join("");
+  const text =
+    "{" +
+    res.content
+      .filter((b) => b.type === "text")
+      .map((b: any) => b.text)
+      .join("");
   // extrait le premier objet JSON de la réponse
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -42,10 +53,11 @@ export async function askClaudeJSON(opts: {
       const m = raw.match(
         new RegExp('"' + key + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.|[\\r\\n])*)"')
       );
-      if (m)
-        return {
-          [key]: m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"'),
-        };
+      if (m) {
+        const value = m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+        // ignore les placeholders ("...") : c'est le template recopié, pas une réponse
+        if (usableText(value)) return { [key]: value };
+      }
     }
     // ne jamais renvoyer du JSON brut à afficher
     return {};
