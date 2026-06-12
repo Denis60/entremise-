@@ -25,13 +25,20 @@ export default function Home() {
 
       <section className="mt-24">
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-          Ceci n&apos;est pas un annuaire
-          <br />
-          ou une vitrine d&apos;entreprises.
+          Ceci n&apos;est pas un annuaire ou une vitrine d&apos;entreprises.
           <br />
           <span className="mt-6 block">
-            C&apos;est une place de marché intermédiée par une IA, qui aide à
-            mûrir les besoins et révèle les solutions du territoire.
+            C&apos;est une place de marché B2B
+            <br />
+            intermédiée par une IA,
+            <br />
+            <span className="text-amber-600">
+              qui mobilise le marché pour mûrir vos besoins
+            </span>{" "}
+            <span className="text-stone-400">/</span>{" "}
+            <span className="text-teal-700">
+              vous connecte aux projets de votre territoire
+            </span>
           </span>
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-stone-600">
@@ -81,9 +88,37 @@ export default function Home() {
         ))}
       </section>
 
+      <section className="mt-24">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/bd-entremise.png"
+          alt="Entremise en bande dessinée : Camille exprime un besoin flou, Plume l'hirondelle sonde anonymement le territoire, les experts locaux répondent, la rencontre a lieu."
+          className="w-full rounded-2xl border border-stone-200"
+        />
+      </section>
+
       <footer className="mt-24 border-t border-stone-200 pt-6 text-sm text-stone-500">
-        Entremise — pilote Charente (Angoulême, Cognac). Concours « Les Idées
-        Neuves » Crédit Mutuel Sud-Ouest.
+        <p>
+          Entremise — pilote Charente (Angoulême, Cognac). Concours « Les Idées
+          Neuves » Crédit Mutuel Sud-Ouest.
+        </p>
+        <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/mentions-legales" className="hover:text-stone-900">
+            Mentions légales
+          </Link>
+          <Link href="/confidentialite" className="hover:text-stone-900">
+            Confidentialité & RGPD
+          </Link>
+          <Link href="/cgu" className="hover:text-stone-900">
+            CGU
+          </Link>
+          <a
+            href="mailto:denis.oblin@memorandum-ai.com"
+            className="hover:text-stone-900"
+          >
+            Contact
+          </a>
+        </p>
       </footer>
     </main>
   );
