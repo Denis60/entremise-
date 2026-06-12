@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16">
+    <main className="mx-auto max-w-4xl px-6 py-8">
       <header className="flex items-center justify-between">
         <span className="text-xl font-bold tracking-tight">
           entre<span className="text-amber-600">mise</span>
@@ -23,17 +23,18 @@ export default function Home() {
         </nav>
       </header>
 
-      <section className="mt-24">
+      <section className="mt-12">
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           Ceci n&apos;est pas un annuaire ou une vitrine d&apos;entreprises.
           <br />
           <span className="mt-6 block">
             C&apos;est une place de marché B2B
             <br />
-            intermédiée par une IA,
-            <br />
+            intermédiée par une IA, qui
+          </span>
+          <span className="mt-6 block">
             <span className="text-amber-600">
-              qui mobilise le marché pour mûrir vos besoins
+              mobilise le marché pour mûrir vos besoins
             </span>{" "}
             <span className="text-stone-400">/</span>{" "}
             <span className="text-teal-700">
@@ -41,13 +42,17 @@ export default function Home() {
             </span>
           </span>
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-stone-600">
+        <p className="mt-6 text-lg text-stone-600">
           Décrivez votre besoin, même flou. L&apos;IA vous aide à le faire
-          mûrir. Quand vous le décidez — et seulement alors — elle sonde
-          anonymement les prestataires pertinents du territoire. La mise en
-          contact n&apos;a lieu qu&apos;avec le consentement des deux parties.
+          mûrir.
+          <br />
+          Quand vous le décidez — et seulement alors — elle sonde anonymement
+          les prestataires pertinents du territoire.
+          <br />
+          La mise en contact n&apos;a lieu qu&apos;avec le consentement des
+          deux parties.
         </p>
-        <div className="mt-10 flex gap-4">
+        <div className="mt-8 flex gap-4">
           <Link
             href="/signup"
             className="rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white hover:bg-amber-500"
