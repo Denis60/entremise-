@@ -44,7 +44,7 @@ export default function Home() {
         </h1>
         <p className="mt-6 text-lg text-stone-600">
           Décrivez votre besoin, même flou. L&apos;IA vous aide à le faire
-          mûrir.
+          mûrir — <strong>sans compte, dès maintenant</strong>.
           <br />
           Quand vous le décidez — et seulement alors — elle sonde anonymement
           les prestataires pertinents du territoire. Leurs contributions ou
@@ -55,10 +55,10 @@ export default function Home() {
         </p>
         <div className="mt-8 flex gap-4">
           <Link
-            href="/signup"
+            href="/chat"
             className="rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white hover:bg-amber-500"
           >
-            Exprimer un besoin
+            Discuter avec l&apos;IA
           </Link>
           <Link
             href="/signup"
