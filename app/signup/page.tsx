@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -12,6 +12,23 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+
+  // Une conversation menée sans compte attend d'être rattachée ?
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("entremise_anon_chat");
+      if (raw) {
+        const p = JSON.parse(raw);
+        setHasDraft(
+          Array.isArray(p?.messages) &&
+            p.messages.some((m: any) => m?.role === "user")
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,6 +73,12 @@ export default function SignupPage() {
         entre<span className="text-amber-600">mise</span>
       </Link>
       <h1 className="mt-8 text-2xl font-semibold">Créer un compte</h1>
+      {hasDraft && (
+        <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Votre conversation en cours sera <strong>reprise automatiquement</strong>{" "}
+          dans votre espace dès la création du compte.
+        </p>
+      )}
       <p className="mt-2 text-sm text-stone-600">
         Un compte = une entreprise. Vous pourrez être tour à tour demandeur et
         prestataire.
