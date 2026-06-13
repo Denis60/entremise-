@@ -35,6 +35,9 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/login") ||
     path.startsWith("/signup") ||
     path.startsWith("/auth") ||
+    // dialogue d'accueil sans compte : page de chat + route IA stateless
+    path.startsWith("/chat") ||
+    path.startsWith("/api/chat/anon") ||
     // routes appelées par pg_cron (authentifiées par x-cron-secret, pas par cookie) :
     // sans cette exclusion, le POST est redirigé vers /login → 405, le cron ne tourne jamais
     path.startsWith("/api/cron");
