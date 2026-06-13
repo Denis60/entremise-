@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import NewNeedButton from "@/components/NewNeedButton";
+import AnonImport from "@/components/AnonImport";
 import { NEED_STATUS_LABELS, SOL_STATUS_LABELS } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -78,6 +79,7 @@ export default async function Dashboard() {
     <>
       <Nav />
       <main className="mx-auto max-w-5xl px-6 py-10">
+        <AnonImport />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold">{profile.company_name}</h1>
