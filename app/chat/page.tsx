@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export const ANON_CHAT_KEY = "entremise_anon_chat";
+const ANON_CHAT_KEY = "entremise_anon_chat";
 
 type Turn = { role: "user" | "assistant"; content: string };
 type Stored = {
