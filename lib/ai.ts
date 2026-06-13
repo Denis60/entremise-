@@ -23,16 +23,15 @@ export async function askClaudeJSON(opts: {
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: opts.maxTokens ?? 3000,
-    system: opts.system,
-    // préremplissage "{" : force une sortie JSON immédiate, sans préambule ni template recopié
-    messages: [...opts.messages, { role: "assistant", content: "{" }],
+    // les modèles récents ne supportent plus le prefill assistant :
+    // on exige le JSON via le system prompt et on extrait le premier objet {...}
+    system: opts.system + "\nTa réponse doit commencer directement par { sans aucun texte avant.",
+    messages: opts.messages,
   });
-  const text =
-    "{" +
-    res.content
-      .filter((b) => b.type === "text")
-      .map((b: any) => b.text)
-      .join("");
+  const text = res.content
+    .filter((b) => b.type === "text")
+    .map((b: any) => b.text)
+    .join("");
   // extrait le premier objet JSON de la réponse
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
