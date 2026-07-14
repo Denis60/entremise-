@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
+import Markdown from "@/components/Markdown";
 import { createClient } from "@/lib/supabase/client";
 import {
   Need,
@@ -25,6 +26,7 @@ export default function NeedPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [vivier, setVivier] = useState<{ with_filters: number; without_revenue_filter: number } | null>(null);
   const [disclosedDraft, setDisclosedDraft] = useState("");
+  const [aiReady, setAiReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -96,6 +98,8 @@ export default function NeedPage() {
       setError(j.error ?? "Erreur lors de l'appel à l'IA.");
       return;
     }
+    const j = await res.json().catch(() => ({}));
+    if (j?.ready) setAiReady(true);
     await load();
   }
 
@@ -227,6 +231,8 @@ export default function NeedPage() {
     !!need.disclosure_approved_at &&
     !closed &&
     need.status !== "open_consultation";
+  const assistantCount = messages.filter((m) => m.role === "assistant").length;
+  const showExitHint = !closed && (assistantCount >= 3 || aiReady);
 
   return (
     <>
@@ -260,8 +266,8 @@ export default function NeedPage() {
                   </div>
                 )}
                 {m.role === "assistant" && (
-                  <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
-                    {m.content}
+                  <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
+                    <Markdown text={m.content} />
                   </div>
                 )}
                 {m.role === "market" && (
@@ -277,7 +283,7 @@ export default function NeedPage() {
                                 : "suggère"
                             }`}
                     </p>
-                    <p className="mt-1 whitespace-pre-wrap">{m.content}</p>
+                    <Markdown text={m.content} className="mt-1" />
                     {m.meta.contribution_id && (
                       <div className="mt-2 flex gap-1">
                         {[1, 2, 3, 4, 5].map((r) => (
@@ -308,8 +314,15 @@ export default function NeedPage() {
               {error}
             </p>
           )}
+          {showExitHint && (
+            <p className="border-t border-stone-100 px-4 pt-3 text-xs italic text-stone-400">
+              Vous en avez dit assez pour avancer — inutile de tout détailler.
+              Continuez si vous le souhaitez, ou préparez la version divulgable
+              (panneau de droite) pour solliciter le marché.
+            </p>
+          )}
           {!closed && (
-            <div className="flex gap-2 border-t border-stone-100 p-4">
+            <div className="flex items-end gap-2 border-t border-stone-100 p-4">
               <textarea
                 rows={2}
                 value={input}
@@ -329,17 +342,30 @@ export default function NeedPage() {
                 onInput={(e) => {
                   const t = e.currentTarget;
                   t.style.height = "auto";
-                  t.style.height = Math.min(t.scrollHeight, 180) + "px";
+                  t.style.height = Math.min(t.scrollHeight, 160) + "px";
                 }}
                 placeholder="Votre message…"
-                className="flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"
+                className="max-h-[160px] flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"
               />
               <button
                 onClick={send}
-                disabled={sending}
-                className="rounded-xl bg-stone-900 px-5 font-medium text-white hover:bg-stone-700 disabled:opacity-50"
+                disabled={sending || !input.trim()}
+                aria-label="Envoyer"
+                title="Envoyer"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-900 text-white hover:bg-stone-700 disabled:opacity-40"
               >
-                Envoyer
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
               </button>
             </div>
           )}
