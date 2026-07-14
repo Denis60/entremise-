@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
+import Markdown from "@/components/Markdown";
 import { createClient } from "@/lib/supabase/client";
 import { Message, SOL_STATUS_LABELS } from "@/lib/types";
 
@@ -184,11 +185,11 @@ export default function SolicitationPage() {
                       <p className="text-xs font-semibold text-amber-700">
                         Le demandeur a apporté des précisions
                       </p>
-                      <p className="mt-1 whitespace-pre-wrap">{m.content}</p>
+                      <Markdown text={m.content} className="mt-1" />
                     </div>
                   ) : (
-                    <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
-                      {m.content}
+                    <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
+                      <Markdown text={m.content} />
                     </div>
                   )}
                 </div>
@@ -206,7 +207,7 @@ export default function SolicitationPage() {
             </p>
           )}
           {active && (
-            <div className="flex gap-2 border-t border-stone-100 p-4">
+            <div className="flex items-end gap-2 border-t border-stone-100 p-4">
               <textarea
                 rows={2}
                 value={input}
@@ -226,17 +227,30 @@ export default function SolicitationPage() {
                 onInput={(e) => {
                   const t = e.currentTarget;
                   t.style.height = "auto";
-                  t.style.height = Math.min(t.scrollHeight, 180) + "px";
+                  t.style.height = Math.min(t.scrollHeight, 160) + "px";
                 }}
                 placeholder="Vos questions au demandeur, vos suggestions, votre intérêt…"
-                className="flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"
+                className="max-h-[160px] flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"
               />
               <button
                 onClick={send}
-                disabled={sending}
-                className="rounded-xl bg-stone-900 px-5 font-medium text-white hover:bg-stone-700 disabled:opacity-50"
+                disabled={sending || !input.trim()}
+                aria-label="Envoyer"
+                title="Envoyer"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-900 text-white hover:bg-stone-700 disabled:opacity-50"
               >
-                Envoyer
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
               </button>
             </div>
           )}
