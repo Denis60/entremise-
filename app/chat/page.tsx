@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Markdown from "@/components/Markdown";
 
 const ANON_CHAT_KEY = "entremise_anon_chat";
 
@@ -111,6 +112,8 @@ export default function AnonChatPage() {
   }
 
   const hasContent = messages.some((m) => m.role === "user");
+  const assistantCount = messages.filter((m) => m.role === "assistant").length;
+  const showExitHint = assistantCount >= 3 || meta.ready;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-6">
@@ -145,8 +148,8 @@ export default function AnonChatPage() {
 
       <section className="mt-4 flex h-[calc(100vh-260px)] flex-col rounded-2xl border border-stone-200 bg-white">
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
-          <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
-            {INTRO}
+          <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
+            <Markdown text={INTRO} />
           </div>
 
           {messages.length === 0 && (
@@ -170,8 +173,8 @@ export default function AnonChatPage() {
                   {m.content}
                 </div>
               ) : (
-                <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
-                  {m.content}
+                <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-stone-100 px-4 py-2.5 text-sm">
+                  <Markdown text={m.content} />
                 </div>
               )}
             </div>
@@ -191,7 +194,14 @@ export default function AnonChatPage() {
           </p>
         )}
 
-        <div className="flex gap-2 border-t border-stone-100 p-4">
+        {showExitHint && (
+          <p className="border-t border-stone-100 px-4 pt-3 text-xs italic text-stone-400">
+            Vous en avez dit assez pour avancer — inutile de tout détailler. Vous
+            pouvez continuer si vous le souhaitez, ou créer un compte pour
+            sauvegarder cette discussion.
+          </p>
+        )}
+        <div className="flex items-end gap-2 border-t border-stone-100 p-4">
           <textarea
             rows={2}
             value={input}
@@ -206,15 +216,33 @@ export default function AnonChatPage() {
                 send();
               }
             }}
+            onInput={(e) => {
+              const t = e.currentTarget;
+              t.style.height = "auto";
+              t.style.height = Math.min(t.scrollHeight, 160) + "px";
+            }}
             placeholder="Décrivez votre besoin ou posez une question…"
-            className="flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"
+            className="max-h-[160px] flex-1 resize-none rounded-xl border border-stone-300 px-4 py-2.5 text-sm"
           />
           <button
             onClick={() => send()}
-            disabled={sending}
-            className="rounded-xl bg-stone-900 px-5 font-medium text-white hover:bg-stone-700 disabled:opacity-50"
+            disabled={sending || !input.trim()}
+            aria-label="Envoyer"
+            title="Envoyer"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-900 text-white hover:bg-stone-700 disabled:opacity-40"
           >
-            Envoyer
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
           </button>
         </div>
       </section>
